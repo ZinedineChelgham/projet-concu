@@ -5,6 +5,8 @@ import javax.swing.*;
 
 public class Simulation {
 
+    // need greed
+
 
 
 
