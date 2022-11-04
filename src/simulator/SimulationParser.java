@@ -1,13 +1,22 @@
 package simulator;
 
+import java.awt.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Random;
 import java.util.Scanner;
 
 public class SimulationParser {
+
+
+    private final List<Color> givenColors = new ArrayList<>();
+
     public SimulationParameters parse(String filename) {
+        givenColors.add(Color.BLACK); // we exclude black and white so that the drawn id is always visible
+        givenColors.add(Color.WHITE);
         try {
             File myObj = new File(filename);
             Scanner myReader = new Scanner(myObj);
@@ -15,7 +24,7 @@ public class SimulationParser {
             String[] grid_sizes = nextLine.split(" ");
             int width = Integer.parseInt(grid_sizes[0]);
             int height = Integer.parseInt(grid_sizes[1]);
-            ArrayList<Person> personsList = new ArrayList();
+            ArrayList personsList = new ArrayList();
             while (myReader.hasNextLine()) {
                 String nextPerson = myReader.nextLine();
                 String[] nextPersonArray = nextPerson.split(" ");
@@ -23,7 +32,7 @@ public class SimulationParser {
                 int nextY = Integer.parseInt(nextPersonArray[1]);
                 int nextGoalX = Integer.parseInt(nextPersonArray[2]);
                 int nextGoalY = Integer.parseInt(nextPersonArray[3]);
-                personsList.add(new Person(nextX, nextY, 1, 1, nextGoalX, nextGoalY));
+                personsList.add(new Person(nextX, nextY, nextGoalX, nextGoalY, generateNewColor()));
             }
             myReader.close();
             return new SimulationParameters(width, height, personsList);
@@ -33,6 +42,15 @@ public class SimulationParser {
             e.printStackTrace();
         }
         return new SimulationParameters(10,10,new ArrayList<>());
+    }
+
+    private Color generateNewColor(){
+        Color c;
+        do{
+            c = new Color((int)(Math.random() * 0x1000000));
+        }while(givenColors.contains(c));
+        givenColors.add(c);
+        return c;
     }
 
 }

@@ -2,20 +2,46 @@ package simulator;
 
 
 import javax.swing.*;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Simulation {
 
-    // need greed
+    private final SimulationParameters simulationParameters;
 
 
-
+    public Simulation(SimulationParameters sp) {
+        this.simulationParameters = sp;
+    }
 
     public void start() {
         JFrame frame = new JFrame("Simulation Demo");
-        frame.setSize(600,600);
-        frame.setContentPane(new BoardPanel());
-        frame.setResizable(false);
+        frame.setSize(900,900);
+        setPersonsId();
+        Field field = new Field(simulationParameters.getPersons());
+        BoardPanel panel = new BoardPanel(field, simulationParameters.getWidth(), simulationParameters.getHeight());
+        frame.setContentPane(panel);
+        frame.setResizable(true);
         frame.setVisible(true);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        startThreads();
+    }
 
+    private void startThreads(){
+        List<Thread> tPersons = new ArrayList<>();
+        for(Person p : simulationParameters.getPersons()){
+            tPersons.add(new Thread(p));
+        }
+        for (Thread thread : tPersons){
+            thread.start();
+        }
+    }
+
+    private void setPersonsId(){
+        int id = 0;
+        for(Person p : simulationParameters.getPersons()){
+            p.setId(id++);
+        }
     }
 }
