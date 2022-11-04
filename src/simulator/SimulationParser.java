@@ -15,7 +15,7 @@ public class SimulationParser {
     private final List<Color> givenColors = new ArrayList<>();
 
     public SimulationParameters parse(String filename) {
-        givenColors.add(Color.BLACK); // we exclude black so that the drawn id is always visible
+        givenColors.add(Color.BLACK); // we exclude black and white so that the drawn id is always visible
         givenColors.add(Color.WHITE);
         try {
             File myObj = new File(filename);

@@ -8,15 +8,6 @@ public class PositionVector {
         this.y = y;
     }
 
-    public void add(PositionVector pv){
-        this.x += pv.x;
-        this.y += pv.y;
-    }
-
-    public void add(int x, int y){
-        this.x += x;
-        this.y += y;
-    }
 
     @Override
     public boolean equals(Object o) {

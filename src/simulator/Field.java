@@ -6,20 +6,30 @@ import java.util.Objects;
 
 public record Field(List<Person> persons) {
 
+
     public Field(List<Person> persons) {
         this.persons = persons;
         setFieldForPersons();
 
     }
 
-    public List<Person> getPersons() {
-        return persons;
+    public synchronized void placePerson(Person p, PositionVector desiredPos) {
+        if(!isPlaceFree(desiredPos.x, desiredPos.y)) {
+            Person p2 = Objects.requireNonNull(getPersonAt(desiredPos));
+            if(p.id > p2.id){
+                p2.resetPosition();
+            }
+        }
+        p.curPos = desiredPos.myClone();
     }
 
     private void setFieldForPersons() {
         for (Person p : persons) p.setSharedField(this);
     }
+    public List<Person> getPersons() {
+        return persons;
 
+    }
 
     public boolean isPlaceFree(int x, int y) {
         for (Person p : persons) {
@@ -29,9 +39,9 @@ public record Field(List<Person> persons) {
         return true;
     }
 
-    public Person getPersonAt(int x, int y) {
+    public Person getPersonAt(PositionVector pos) {
         for (Person p : persons) {
-            if (p.curPos.equals(new PositionVector(x, y)))
+            if (p.curPos.equals(pos))
                 return p;
         }
         return null;
@@ -43,12 +53,4 @@ public record Field(List<Person> persons) {
         }
     }
 
-
-    public void resetPersonAt(int nextXPos, int nextYPos) {
-        Objects.requireNonNull(getPersonAt(nextXPos, nextYPos)).resetPosition();
-    }
-
-    public void removePerson(Person person) {
-        persons.remove(person);
-    }
 }

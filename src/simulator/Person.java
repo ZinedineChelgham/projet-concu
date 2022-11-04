@@ -4,66 +4,57 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Random;
 
 import static simulator.BoardPanel.CELLSIZE;
 
 
 public class Person implements Runnable {
 
-    private int id;
     private final int len;
     PositionVector startPos;
     PositionVector curPos;
     PositionVector finalPos;
+    protected int id;
     private Field sharedField;
-    private Color color;
-
-
-    public Person(int id, int x, int y, int xGoal, int yGoal, Color color) {
-        this.id = id;
-        this.len = 15;
-        this.startPos = new PositionVector(x, y);
-        this.curPos = startPos;
-        this.finalPos = new PositionVector(xGoal, yGoal);
-        this.color = color;
-
-    }
+    private final Color color;
 
     public Person(int x, int y, int xGoal, int yGoal, Color color) {
-        this.len = 15;
+        this.len = CELLSIZE / 2;
         this.startPos = new PositionVector(x, y);
         this.curPos = startPos.myClone();
         this.finalPos = new PositionVector(xGoal, yGoal);
         this.color = color;
     }
 
-    public void setId(int id){
+    public void setId(int id) {
         this.id = id;
     }
 
     @Override
     public void run() {
-
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        while (!isArrived()) {
+            try {
+                move();
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
-
-
-    public void move() {
+    public void move() throws InterruptedException {
         List<EMove> bestMoves = getBestMoves();
         if (bestMoves.isEmpty()) return;
         List<EMove> movesOnEmptyPlace = getMovesOnEmptyPlace(bestMoves);
-        if (movesOnEmptyPlace.isEmpty()) {
-            if (id > Objects.requireNonNull(sharedField.getPersonAt(getNextXPos(bestMoves.get(0)), getNextYPos(bestMoves.get(0)))).id) {
-                // Im the oldest
-                EMove move = bestMoves.get(0);
-                sharedField.resetPersonAt(getNextXPos(move), getNextYPos(move));
-                moveAccordingTo(move);
-            }
-        } else {
-            moveAccordingTo(movesOnEmptyPlace.get(0));
-        }
-
+        EMove finalMove;
+        if (movesOnEmptyPlace.isEmpty()) finalMove = bestMoves.get(0);
+        else finalMove = movesOnEmptyPlace.get(0);
+        sharedField.placePerson(this, new PositionVector(getNextXPos(finalMove), getNextYPos(finalMove)));
     }
 
     public void setPosOutside() {
@@ -95,15 +86,6 @@ public class Person implements Runnable {
         return curPos.x;
     }
 
-    public void moveAccordingTo(EMove move) {
-        switch (move) {
-            case LEFT -> curPos.add(-1,0);
-            case RIGHT -> curPos.add(1,0);
-            case UP -> curPos.add(0,1);
-            case DOWN -> curPos.add(0,-1);
-        }
-    }
-
     private List<EMove> getBestMoves() {
         List<EMove> bestMoves = new ArrayList<>();
         if (curPos.equals(finalPos)) return bestMoves;
@@ -122,7 +104,7 @@ public class Person implements Runnable {
                     if (sharedField.isPlaceFree(curPos.x - 1, curPos.y)) costLessMoves.add(move);
                     break;
                 case RIGHT:
-                    if (sharedField.isPlaceFree(curPos.x + 1 , curPos.y)) costLessMoves.add(move);
+                    if (sharedField.isPlaceFree(curPos.x + 1, curPos.y)) costLessMoves.add(move);
                     break;
                 case UP:
                     if (sharedField.isPlaceFree(curPos.x, curPos.y + 1)) costLessMoves.add(move);
@@ -145,9 +127,10 @@ public class Person implements Runnable {
         int posY = (CELLSIZE / 2 - len / 2) + curPos.y * CELLSIZE;
         g.fillRect(posX, posY, len, len);
         g.setColor(Color.WHITE);
-        g.setFont(new Font("Courier New", Font.BOLD, 10));
-        int idX = (CELLSIZE / 2 - len / 5) + posX * CELLSIZE;
-        int idY = (CELLSIZE / 2 + len / 4) + posY * CELLSIZE;
+        g.setFont(new Font("Courier New", Font.BOLD, len / 2));
+        // center the id in the cells
+        int idX = posX + (len - g.getFontMetrics().stringWidth(String.valueOf(id))) / 2;
+        int idY = posY + (len - g.getFontMetrics().getHeight()) / 2 + g.getFontMetrics().getAscent();
         g.drawString(String.valueOf(id), idX, idY);
     }
 
@@ -157,10 +140,6 @@ public class Person implements Runnable {
 
     public boolean isArrived() {
         return curPos.equals(finalPos);
-    }
-
-    public void setColor(Color color) {
-        this.color = color;
     }
 
     @Override

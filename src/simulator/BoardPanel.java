@@ -18,7 +18,7 @@ public class BoardPanel extends JPanel implements ActionListener {
         this.field = field;
         this.GRID_WIDTH = gridWidth;
         this.GRID_HEIGHT = gridHeight;
-        new Timer(100, this).start();
+        new Timer(1000, this).start();
     }
 
     @Override
@@ -30,17 +30,6 @@ public class BoardPanel extends JPanel implements ActionListener {
         drawGrid(g);
         drawPersons(g);
 
-    }
-
-    private void makePersonsMove() {
-        for (Person p : field.getPersons()) {
-            if (!p.isArrived()) p.move();
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
     }
 
     private void drawPersons(Graphics g) {
@@ -64,7 +53,6 @@ public class BoardPanel extends JPanel implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         field.checkTheArrived();
-        makePersonsMove();
         repaint();
     }
 }
