@@ -28,6 +28,8 @@ public class SimulationParser {
             while (myReader.hasNextLine()) {
                 String nextPerson = myReader.nextLine();
                 String[] nextPersonArray = nextPerson.split(" ");
+                // check if nextPersonArray is valid if not continue to next iteration
+                if (nextPersonArray.length != 4) continue;
                 int nextX = Integer.parseInt(nextPersonArray[0]);
                 int nextY = Integer.parseInt(nextPersonArray[1]);
                 int nextGoalX = Integer.parseInt(nextPersonArray[2]);

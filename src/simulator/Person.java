@@ -3,7 +3,6 @@ package simulator;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 import static simulator.BoardPanel.CELLSIZE;
 
@@ -21,7 +20,7 @@ public class Person implements Runnable {
     public Person(int x, int y, int xGoal, int yGoal, Color color) {
         this.len = CELLSIZE / 2;
         this.startPos = new PositionVector(x, y);
-        this.curPos = startPos.myClone();
+        this.curPos = startPos.cloneVector();
         this.finalPos = new PositionVector(xGoal, yGoal);
         this.color = color;
     }
@@ -40,7 +39,7 @@ public class Person implements Runnable {
         while (!isArrived()) {
             try {
                 move();
-                Thread.sleep(2000);
+                Thread.sleep(1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -51,16 +50,11 @@ public class Person implements Runnable {
         List<EMove> bestMoves = getBestMoves();
         if (bestMoves.isEmpty()) return;
         List<EMove> movesOnEmptyPlace = getMovesOnEmptyPlace(bestMoves);
-        EMove finalMove;
-        if (movesOnEmptyPlace.isEmpty()) finalMove = bestMoves.get(0);
-        else finalMove = movesOnEmptyPlace.get(0);
+        EMove finalMove = movesOnEmptyPlace.isEmpty() ? bestMoves.get(0) : movesOnEmptyPlace.get(0);
         sharedField.placePerson(this, new PositionVector(getNextXPos(finalMove), getNextYPos(finalMove)));
     }
 
-    public void setPosOutside() {
-        curPos.x = Integer.MAX_VALUE;
-        curPos.y = Integer.MAX_VALUE;
-    }
+
 
     public int getNextYPos(EMove move) {
         switch (move) {
@@ -135,7 +129,7 @@ public class Person implements Runnable {
     }
 
     public void resetPosition() {
-        curPos = startPos.myClone();
+        curPos = startPos.cloneVector();
     }
 
     public boolean isArrived() {

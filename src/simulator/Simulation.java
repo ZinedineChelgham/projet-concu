@@ -19,7 +19,7 @@ public class Simulation {
         JFrame frame = new JFrame("Simulation Demo");
         frame.setSize(900,900);
         setPersonsId();
-        Field field = new Field(simulationParameters.getPersons());
+        Field field = new Field(simulationParameters.getPersons(), simulationParameters.getWidth(), simulationParameters.getHeight());
         BoardPanel panel = new BoardPanel(field, simulationParameters.getWidth(), simulationParameters.getHeight());
         frame.setContentPane(panel);
         frame.setResizable(true);
