@@ -17,7 +17,7 @@ public class PositionVector {
         return x == that.x && y == that.y;
     }
 
-    public PositionVector myClone(){
+    public PositionVector cloneVector(){
         return new PositionVector(x,y);
     }
 }
