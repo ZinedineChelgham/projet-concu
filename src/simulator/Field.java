@@ -4,18 +4,27 @@ import java.awt.*;
 import java.util.List;
 import java.util.Objects;
 
+import static simulator.Simulation.WIDTH;
+import static simulator.Simulation.HEIGHT;
+
 
 public class Field {
 
     private final Person[][] sharedField;
+    private final int cellsize;
     List<Person> persons;
 
     public Field(List<Person> persons, int width, int height) {
+        this.cellsize = Math.max(WIDTH/width,HEIGHT/height);
         this.persons = persons;
         sharedField = new Person[height][width];
         for (Person person : persons) this.sharedField[person.curPos.y][person.curPos.x] = person;
         setFieldForPersons();
 
+    }
+
+    public int getCellsize() {
+        return cellsize;
     }
 
 

@@ -9,7 +9,8 @@ import java.util.List;
 public class Simulation {
 
     private final SimulationParameters simulationParameters;
-
+    static final int WIDTH = 800;
+    static final int HEIGHT = 800;
 
     public Simulation(SimulationParameters sp) {
         this.simulationParameters = sp;
@@ -17,7 +18,7 @@ public class Simulation {
 
     public void start() {
         JFrame frame = new JFrame("Simulation Demo");
-        frame.setSize(900,900);
+        frame.setSize(WIDTH,HEIGHT);
         setPersonsId();
         Field field = new Field(simulationParameters.getPersons(), simulationParameters.getWidth(), simulationParameters.getHeight());
         BoardPanel panel = new BoardPanel(field, simulationParameters.getWidth(), simulationParameters.getHeight());

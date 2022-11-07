@@ -4,12 +4,8 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import static simulator.BoardPanel.CELLSIZE;
-
-
 public class Person implements Runnable {
 
-    private final int len;
     PositionVector startPos;
     PositionVector curPos;
     PositionVector finalPos;
@@ -18,7 +14,6 @@ public class Person implements Runnable {
     private final Color color;
 
     public Person(int x, int y, int xGoal, int yGoal, Color color) {
-        this.len = CELLSIZE / 2;
         this.startPos = new PositionVector(x, y);
         this.curPos = startPos.cloneVector();
         this.finalPos = new PositionVector(xGoal, yGoal);
@@ -116,9 +111,11 @@ public class Person implements Runnable {
     }
 
     public void draw(Graphics g) {
+        int cellsize = sharedField.getCellsize();
+        int len = cellsize / 2;
         if (color != null) g.setColor(color);
-        int posX = (CELLSIZE / 2 - len / 2) + curPos.x * CELLSIZE;
-        int posY = (CELLSIZE / 2 - len / 2) + curPos.y * CELLSIZE;
+        int posX = (cellsize / 2 - len / 2) + curPos.x * cellsize;
+        int posY = (cellsize / 2 - len / 2) + curPos.y * cellsize;
         g.fillRect(posX, posY, len, len);
         g.setColor(Color.WHITE);
         g.setFont(new Font("Courier New", Font.BOLD, len / 2));
@@ -140,7 +137,6 @@ public class Person implements Runnable {
     public String toString() {
         return "Person{" +
                 "id=" + id +
-                ", len=" + len +
                 ", startPos=" + startPos +
                 ", curPos=" + curPos +
                 ", finalPos=" + finalPos +
