@@ -46,6 +46,23 @@ public class SimulationParser {
         return new SimulationParameters(10,10,new ArrayList<>());
     }
 
+    public SimulationParameters generatePersons(int nbPersons, int width, int height) {
+        givenColors.add(Color.BLACK); // we exclude black so that the drawn id is always visible
+        givenColors.add(Color.WHITE);
+        ArrayList personsList = new ArrayList();
+        Random random = new Random();
+        for(int i = 0; i < nbPersons; i++){
+            int nextX = random.nextInt(width);
+            int nextY = random.nextInt(height);
+            //if x and y already exist skip this iteration
+            if(personsList.stream().anyMatch(p -> ((Person)p).startPos.x == nextX && ((Person)p).startPos.y == nextY)) continue;
+            int nextGoalX = random.nextInt(width);
+            int nextGoalY = random.nextInt(height);
+            personsList.add(new Person(nextX, nextY, nextGoalX, nextGoalY, generateNewColor()));
+        }
+        return new SimulationParameters(width, height, personsList);
+    }
+
     private Color generateNewColor(){
         Color c;
         do{

@@ -47,16 +47,9 @@ public class BoardPanel extends JPanel implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        field.checkTheArrived();
         repaint();
     }
 
-    public int getGRID_WIDTH() {
-        return GRID_WIDTH;
-    }
 
-    public int getGRID_HEIGHT() {
-        return GRID_HEIGHT;
-    }
 
 }
