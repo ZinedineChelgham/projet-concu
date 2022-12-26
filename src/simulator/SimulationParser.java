@@ -24,6 +24,11 @@ public class SimulationParser {
             String[] grid_sizes = nextLine.split(" ");
             int width = Integer.parseInt(grid_sizes[0]);
             int height = Integer.parseInt(grid_sizes[1]);
+            if(!(width == height && (width*width) % 4 == 0)){
+                throw new IllegalArgumentException("The width and height must be equal and a multiple of 4 " +
+                        "to share the grid into 4 equal quadrants.");
+            }
+
             ArrayList personsList = new ArrayList();
             while (myReader.hasNextLine()) {
                 String nextPerson = myReader.nextLine();
@@ -46,6 +51,24 @@ public class SimulationParser {
         return new SimulationParameters(10,10,new ArrayList<>());
     }
 
+    public SimulationParameters generatePersons(int nbPersons, int width, int height) {
+        givenColors.add(Color.BLACK); // we exclude black so that the drawn id is always visible
+        givenColors.add(Color.WHITE);
+        ArrayList personsList = new ArrayList();
+        Random random = new Random();
+        for(int i = 0; i < nbPersons; i++){
+            int nextX = random.nextInt(width);
+            int nextY = random.nextInt(height);
+            //if x and y already exist skip this iteration
+            if(personsList.stream().anyMatch(p -> ((Person)p).startPos.x == nextX && ((Person)p).startPos.y == nextY)) continue;
+            int nextGoalX = random.nextInt(width);
+            int nextGoalY = random.nextInt(height);
+            personsList.add(new Person(i, nextX, nextY, nextGoalX, nextGoalY, generateNewColor()));
+        }
+        return new SimulationParameters(width, height, personsList);
+    }
+
+
     private Color generateNewColor(){
         Color c;
         do{
@@ -54,5 +77,7 @@ public class SimulationParser {
         givenColors.add(c);
         return c;
     }
+
+
 
 }

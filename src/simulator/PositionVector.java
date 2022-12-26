@@ -1,7 +1,7 @@
 package simulator;
 
 public class PositionVector {
-    protected int x, y;
+    int x, y;
 
     PositionVector(int x, int y){
         this.x = x;
@@ -19,5 +19,13 @@ public class PositionVector {
 
     public PositionVector cloneVector(){
         return new PositionVector(x,y);
+    }
+
+    @Override
+    public String toString() {
+        return "PositionVector{" +
+                "x=" + x +
+                ", y=" + y +
+                '}';
     }
 }

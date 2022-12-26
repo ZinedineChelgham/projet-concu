@@ -10,7 +10,7 @@ public class FileGenerator {
     static final int HEIGHT = 100;
     static final int nbPersons = 100;
 
-    public static void main(String... args) {
+    public void main(String... args) {
         try {
             String str = WIDTH + " " + HEIGHT;
             BufferedWriter writer = new BufferedWriter(new FileWriter("initialisation_file.txt"));

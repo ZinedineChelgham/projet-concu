@@ -3,17 +3,28 @@ package simulator;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
-public class Person implements Runnable {
+import static simulator.BoardPanel.cellsize;
+
+public class Person  {
 
     PositionVector startPos;
     PositionVector curPos;
     PositionVector finalPos;
-    protected int id;
-    private Field sharedField;
-    private final Color color;
+    int id;
+    final Color color;
 
     public Person(int x, int y, int xGoal, int yGoal, Color color) {
+        this.startPos = new PositionVector(x, y);
+        this.curPos = startPos.cloneVector();
+        this.finalPos = new PositionVector(xGoal, yGoal);
+        this.color = color;
+    }
+
+    //constructor witth id field
+    public Person(int id, int x, int y, int xGoal, int yGoal, Color color) {
+        this.id = id;
         this.startPos = new PositionVector(x, y);
         this.curPos = startPos.cloneVector();
         this.finalPos = new PositionVector(xGoal, yGoal);
@@ -24,31 +35,13 @@ public class Person implements Runnable {
         this.id = id;
     }
 
-    @Override
-    public void run() {
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        while (!isArrived()) {
-            try {
-                move();
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-    }
 
-    public void move() throws InterruptedException {
+    public EMove getDecidedMove(GridThread gridThread) {
         List<EMove> bestMoves = getBestMoves();
-        if (bestMoves.isEmpty()) return;
-        List<EMove> movesOnEmptyPlace = getMovesOnEmptyPlace(bestMoves);
-        EMove finalMove = movesOnEmptyPlace.isEmpty() ? bestMoves.get(0) : movesOnEmptyPlace.get(0);
-        sharedField.placePerson(this, new PositionVector(getNextXPos(finalMove), getNextYPos(finalMove)));
+        if (bestMoves.isEmpty()) return null;
+        List<EMove> movesOnEmptyPlace = getMovesOnEmptyPlace(bestMoves, gridThread);
+        return movesOnEmptyPlace.isEmpty() ? bestMoves.get(0) : movesOnEmptyPlace.get(0);
     }
-
 
 
     public int getNextYPos(EMove move) {
@@ -61,6 +54,10 @@ public class Person implements Runnable {
             }
         }
         return curPos.y;
+    }
+
+    public PositionVector getNextPos(EMove move) {
+        return new PositionVector(getNextXPos(move), getNextYPos(move));
     }
 
     public int getNextXPos(EMove move) {
@@ -85,34 +82,30 @@ public class Person implements Runnable {
         return bestMoves;
     }
 
-    public List<EMove> getMovesOnEmptyPlace(List<EMove> moves) {
+    public List<EMove> getMovesOnEmptyPlace(List<EMove> moves, GridThread gridThread) {
         List<EMove> costLessMoves = new ArrayList<>();
         for (EMove move : moves) {
             switch (move) {
-                case LEFT:
-                    if (sharedField.isPlaceFree(curPos.x - 1, curPos.y)) costLessMoves.add(move);
-                    break;
-                case RIGHT:
-                    if (sharedField.isPlaceFree(curPos.x + 1, curPos.y)) costLessMoves.add(move);
-                    break;
-                case UP:
-                    if (sharedField.isPlaceFree(curPos.x, curPos.y + 1)) costLessMoves.add(move);
-                    break;
-                case DOWN:
-                    if (sharedField.isPlaceFree(curPos.x, curPos.y - 1)) costLessMoves.add(move);
-                    break;
+                case LEFT -> {
+                    if (gridThread.isPlaceEmpty(curPos.x - 1, curPos.y)) costLessMoves.add(move);
+                }
+                case RIGHT -> {
+                    if (gridThread.isPlaceEmpty(curPos.x + 1, curPos.y)) costLessMoves.add(move);
+                }
+                case UP -> {
+                    if (gridThread.isPlaceEmpty(curPos.x, curPos.y + 1)) costLessMoves.add(move);
+                }
+                case DOWN -> {
+                    if (gridThread.isPlaceEmpty(curPos.x, curPos.y - 1)) costLessMoves.add(move);
+                }
             }
         }
         return costLessMoves;
     }
 
-    public void setSharedField(Field field) {
-        this.sharedField = field;
-    }
 
     public void draw(Graphics g) {
-        int cellsize = sharedField.getCellsize();
-        int len = cellsize / 2;
+        int len =  cellsize / 2;
         if (color != null) g.setColor(color);
         int posX = (cellsize / 2 - len / 2) + curPos.x * cellsize;
         int posY = (cellsize / 2 - len / 2) + curPos.y * cellsize;
@@ -140,7 +133,6 @@ public class Person implements Runnable {
                 ", startPos=" + startPos +
                 ", curPos=" + curPos +
                 ", finalPos=" + finalPos +
-                ", sharedField=" + sharedField +
                 ", color=" + color +
                 '}';
     }
