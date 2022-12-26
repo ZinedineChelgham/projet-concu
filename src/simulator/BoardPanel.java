@@ -10,17 +10,16 @@ public class BoardPanel extends JPanel implements ActionListener {
 
 
     static final int CELLSIZE = 35;
-    public final int GRID_WIDTH;
-    public final int GRID_HEIGHT;
+    private final int GRID_WIDTH;
+    private final int GRID_HEIGHT;
     private final Field field;
 
     public BoardPanel(Field field, int gridWidth, int gridHeight) {
         this.field = field;
         this.GRID_WIDTH = gridWidth;
         this.GRID_HEIGHT = gridHeight;
-        new Timer(1000, this).start();
+        //new Timer(100, this).start();
     }
-
 
     @Override
     protected void paintComponent(Graphics g) {
@@ -29,8 +28,21 @@ public class BoardPanel extends JPanel implements ActionListener {
         int yOffset = super.getHeight() / 2 - GRID_HEIGHT / 2 * CELLSIZE;
         g.translate(xOffset, yOffset);
         drawGrid(g);
-        field.drawPersons(g);
+        drawPersons(g);
 
+    }
+
+    private void makePersonsMove() {
+        for (Person p : field.getPersons()) {
+            if (!p.isArrived()) p.move();
+        }
+    }
+
+    private void drawPersons(Graphics g) {
+        for (Person p : field.getPersons()) {
+            if(p.x > GRID_WIDTH) continue; //person is out
+            p.draw(g);
+        }
     }
 
     private void drawGrid(Graphics g) {
@@ -46,15 +58,8 @@ public class BoardPanel extends JPanel implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        field.checkTheArrived();
+       // field.checkTheArrived();
+       // makePersonsMove();
         repaint();
-    }
-
-    public int getGRID_WIDTH() {
-        return GRID_WIDTH;
-    }
-
-    public int getGRID_HEIGHT() {
-        return GRID_HEIGHT;
     }
 }

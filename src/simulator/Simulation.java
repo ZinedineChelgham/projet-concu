@@ -2,9 +2,8 @@ package simulator;
 
 
 import javax.swing.*;
+import java.awt.event.WindowEvent;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 public class Simulation {
 
@@ -17,25 +16,38 @@ public class Simulation {
 
     public void start() {
         JFrame frame = new JFrame("Simulation Demo");
-        frame.setSize(900,900);
+        frame.setSize(600,600);
         setPersonsId();
-        Field field = new Field(simulationParameters.getPersons(), simulationParameters.getWidth(), simulationParameters.getHeight());
+        Field field = new Field(simulationParameters.getPersons());
         BoardPanel panel = new BoardPanel(field, simulationParameters.getWidth(), simulationParameters.getHeight());
         frame.setContentPane(panel);
-        frame.setResizable(true);
+        frame.setResizable(false);
         frame.setVisible(true);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        startThreads();
-    }
 
-    private void startThreads(){
-        List<Thread> tPersons = new ArrayList<>();
-        for(Person p : simulationParameters.getPersons()){
-            tPersons.add(new Thread(p));
+
+        long beforeUsedMem=Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory();
+        long startTime = System.nanoTime();
+
+        while(!simulationParameters.persons().stream().allMatch(Person::isArrived)) {
+            for(Person p : simulationParameters.getPersons()){
+                if(!p.isArrived()) p.move();
+                field.checkTheArrived();
+            }
         }
-        for (Thread thread : tPersons){
-            thread.start();
-        }
+
+        long endTime = System.nanoTime();
+        long duration = (endTime - startTime)/1000000;
+        System.out.println("Execution time: " + duration + " ms");
+        long afterUsedMem=Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory();
+        long actualMemUsed=afterUsedMem-beforeUsedMem;
+        System.out.println("Memory used1: " + actualMemUsed);
+        System.out.println("Mem 2: "  + new SystemMemory().getCurrentStats());
+        //close the frame after 3 seconds
+        new Timer(3000, e -> frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING))).start();
+
+
+
     }
 
     private void setPersonsId(){

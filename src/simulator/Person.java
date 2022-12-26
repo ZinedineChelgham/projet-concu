@@ -3,90 +3,113 @@ package simulator;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.Random;
 
 import static simulator.BoardPanel.CELLSIZE;
 
 
-public class Person implements Runnable {
+public class Person extends Rectangle implements Runnable {
 
-    private final int len;
-    PositionVector startPos;
-    PositionVector curPos;
-    PositionVector finalPos;
-    protected int id;
+    final int xStart, yStart;
+    final int xGoal, yGoal;
+    private int id;
     private Field sharedField;
-    private final Color color;
+    private Color color = null;
 
-    public Person(int x, int y, int xGoal, int yGoal, Color color) {
-        this.len = CELLSIZE / 2;
-        this.startPos = new PositionVector(x, y);
-        this.curPos = startPos.cloneVector();
-        this.finalPos = new PositionVector(xGoal, yGoal);
+
+    public Person(int id, int x, int y, int xGoal, int yGoal, Color color) {
+        super(x, y, 15, 15);
+        this.id = id;
+        this.xStart = x;
+        this.yStart = y;
+        this.xGoal = xGoal;
+        this.yGoal = yGoal;
         this.color = color;
+
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public Person(int x, int y, int xGoal, int yGoal, Color color) {
+        super(x, y, 15, 15);
+        this.id = -1;
+        this.xStart = x;
+        this.yStart = y;
+        this.xGoal = xGoal;
+        this.yGoal = yGoal;
+        this.color = color;
     }
 
     @Override
     public void run() {
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        while (!isArrived()) {
-            try {
-                move();
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
+
     }
 
-    public void move() throws InterruptedException {
+    public void setId(int id){
+        this.id = id;
+    }
+
+
+    public void move() {
         List<EMove> bestMoves = getBestMoves();
         if (bestMoves.isEmpty()) return;
         List<EMove> movesOnEmptyPlace = getMovesOnEmptyPlace(bestMoves);
-        EMove finalMove = movesOnEmptyPlace.isEmpty() ? bestMoves.get(0) : movesOnEmptyPlace.get(0);
-        sharedField.placePerson(this, new PositionVector(getNextXPos(finalMove), getNextYPos(finalMove)));
+        if (movesOnEmptyPlace.isEmpty()) {
+            if (id > Objects.requireNonNull(sharedField.getPersonAt(getNextXPos(bestMoves.get(0)), getNextYPos(bestMoves.get(0)))).id) {
+                // Im the oldest
+                EMove move = bestMoves.get(0);
+                sharedField.resetPersonAt(getNextXPos(move), getNextYPos(move));
+                moveAccordingTo(move);
+            }
+        } else {
+            moveAccordingTo(movesOnEmptyPlace.get(0));
+        }
+
     }
 
-
+    public void setPosOutside() {
+        x = y = Integer.MAX_VALUE;
+    }
 
     public int getNextYPos(EMove move) {
         switch (move) {
             case UP -> {
-                return curPos.y + 1;
+                return y + 1;
             }
             case DOWN -> {
-                return curPos.y - 1;
+                return y - 1;
             }
         }
-        return curPos.y;
+        return y;
     }
 
     public int getNextXPos(EMove move) {
         switch (move) {
             case LEFT -> {
-                return curPos.x - 1;
+                return x - 1;
             }
             case RIGHT -> {
-                return curPos.x + 1;
+                return x + 1;
             }
         }
-        return curPos.x;
+        return x;
+    }
+
+    public void moveAccordingTo(EMove move) {
+        switch (move) {
+            case LEFT -> x--;
+            case RIGHT -> x++;
+            case UP -> y++;
+            case DOWN -> y--;
+        }
     }
 
     private List<EMove> getBestMoves() {
         List<EMove> bestMoves = new ArrayList<>();
-        if (curPos.equals(finalPos)) return bestMoves;
-        if (curPos.x < finalPos.x) bestMoves.add(EMove.RIGHT);
-        if (curPos.x > finalPos.x) bestMoves.add(EMove.LEFT);
-        if (curPos.y < finalPos.y) bestMoves.add(EMove.UP);
-        if (curPos.y > finalPos.y) bestMoves.add(EMove.DOWN);
+        if (x == xGoal && y == yGoal) return bestMoves;
+        if (x < xGoal) bestMoves.add(EMove.RIGHT);
+        if (x > xGoal) bestMoves.add(EMove.LEFT);
+        if (y < yGoal) bestMoves.add(EMove.UP);
+        if (y > yGoal) bestMoves.add(EMove.DOWN);
         return bestMoves;
     }
 
@@ -94,18 +117,18 @@ public class Person implements Runnable {
         List<EMove> costLessMoves = new ArrayList<>();
         for (EMove move : moves) {
             switch (move) {
-                case LEFT:
-                    if (sharedField.isPlaceFree(curPos.x - 1, curPos.y)) costLessMoves.add(move);
-                    break;
-                case RIGHT:
-                    if (sharedField.isPlaceFree(curPos.x + 1, curPos.y)) costLessMoves.add(move);
-                    break;
-                case UP:
-                    if (sharedField.isPlaceFree(curPos.x, curPos.y + 1)) costLessMoves.add(move);
-                    break;
-                case DOWN:
-                    if (sharedField.isPlaceFree(curPos.x, curPos.y - 1)) costLessMoves.add(move);
-                    break;
+                case LEFT -> {
+                    if (sharedField.isPlaceFree(x - 1, y)) costLessMoves.add(move);
+                }
+                case RIGHT -> {
+                    if (sharedField.isPlaceFree(x + 1, y)) costLessMoves.add(move);
+                }
+                case UP -> {
+                    if (sharedField.isPlaceFree(x, y + 1)) costLessMoves.add(move);
+                }
+                case DOWN -> {
+                    if (sharedField.isPlaceFree(x, y - 1)) costLessMoves.add(move);
+                }
             }
         }
         return costLessMoves;
@@ -117,35 +140,45 @@ public class Person implements Runnable {
 
     public void draw(Graphics g) {
         if (color != null) g.setColor(color);
-        int posX = (CELLSIZE / 2 - len / 2) + curPos.x * CELLSIZE;
-        int posY = (CELLSIZE / 2 - len / 2) + curPos.y * CELLSIZE;
-        g.fillRect(posX, posY, len, len);
+        int posX = (CELLSIZE / 2 - width / 2) + x * CELLSIZE;
+        int posY = (CELLSIZE / 2 - height / 2) + y * CELLSIZE;
+        g.fillRect(posX, posY, width, height);
+
         g.setColor(Color.WHITE);
-        g.setFont(new Font("Courier New", Font.BOLD, len / 2));
-        // center the id in the cells
-        int idX = posX + (len - g.getFontMetrics().stringWidth(String.valueOf(id))) / 2;
-        int idY = posY + (len - g.getFontMetrics().getHeight()) / 2 + g.getFontMetrics().getAscent();
+        g.setFont(new Font("Courier New", Font.BOLD, 10));
+        int idX = (CELLSIZE / 2 - width / 5) + x * CELLSIZE;
+        int idY = (CELLSIZE / 2 + width / 4) + y * CELLSIZE;
         g.drawString(String.valueOf(id), idX, idY);
     }
 
     public void resetPosition() {
-        curPos = startPos.cloneVector();
+        x = xStart;
+        y = yStart;
     }
 
     public boolean isArrived() {
-        return curPos.equals(finalPos);
+        return x == xGoal && y == yGoal || x == Integer.MAX_VALUE && y == Integer.MAX_VALUE;
     }
+
+    public void setColor(Color color) {
+        this.color = color;
+    }
+
 
     @Override
     public String toString() {
         return "Person{" +
                 "id=" + id +
-                ", len=" + len +
-                ", startPos=" + startPos +
-                ", curPos=" + curPos +
-                ", finalPos=" + finalPos +
+                ", xStart=" + xStart +
+                ", yStart=" + yStart +
+                ", xGoal=" + xGoal +
+                ", yGoal=" + yGoal +
                 ", sharedField=" + sharedField +
                 ", color=" + color +
+                ", x=" + x +
+                ", y=" + y +
+                ", width=" + width +
+                ", height=" + height +
                 '}';
     }
 }

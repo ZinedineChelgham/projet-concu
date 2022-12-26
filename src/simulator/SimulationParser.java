@@ -15,7 +15,7 @@ public class SimulationParser {
     private final List<Color> givenColors = new ArrayList<>();
 
     public SimulationParameters parse(String filename) {
-        givenColors.add(Color.BLACK); // we exclude black and white so that the drawn id is always visible
+        givenColors.add(Color.BLACK); // we exclude black so that the drawn id is always visible
         givenColors.add(Color.WHITE);
         try {
             File myObj = new File(filename);
@@ -28,8 +28,6 @@ public class SimulationParser {
             while (myReader.hasNextLine()) {
                 String nextPerson = myReader.nextLine();
                 String[] nextPersonArray = nextPerson.split(" ");
-                // check if nextPersonArray is valid if not continue to next iteration
-                if (nextPersonArray.length != 4) continue;
                 int nextX = Integer.parseInt(nextPersonArray[0]);
                 int nextY = Integer.parseInt(nextPersonArray[1]);
                 int nextGoalX = Integer.parseInt(nextPersonArray[2]);
@@ -44,6 +42,23 @@ public class SimulationParser {
             e.printStackTrace();
         }
         return new SimulationParameters(10,10,new ArrayList<>());
+    }
+
+    public SimulationParameters generatePersons(int nbPersons, int width, int height) {
+        givenColors.add(Color.BLACK); // we exclude black so that the drawn id is always visible
+        givenColors.add(Color.WHITE);
+        ArrayList personsList = new ArrayList();
+        Random random = new Random();
+        for(int i = 0; i < nbPersons; i++){
+            int nextX = random.nextInt(width);
+            int nextY = random.nextInt(height);
+            //if x and y already exist skip this iteration
+            if(personsList.stream().anyMatch(p -> ((Person)p).x == nextX && ((Person)p).y == nextY)) continue;
+            int nextGoalX = random.nextInt(width);
+            int nextGoalY = random.nextInt(height);
+            personsList.add(new Person(i, nextX, nextY, nextGoalX, nextGoalY, generateNewColor()));
+        }
+        return new SimulationParameters(width, height, personsList);
     }
 
     private Color generateNewColor(){

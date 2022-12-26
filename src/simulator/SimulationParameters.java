@@ -4,7 +4,7 @@ import java.util.List;
 
 public record SimulationParameters(int width, int height, List<Person> persons) {
 
-    public  int getWidth() {
+    public int getWidth() {
         return width;
     }
 
