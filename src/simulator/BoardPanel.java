@@ -18,7 +18,7 @@ public class BoardPanel extends JPanel implements ActionListener {
         this.field = field;
         this.GRID_WIDTH = gridWidth;
         this.GRID_HEIGHT = gridHeight;
-        //new Timer(100, this).start();
+       // new Timer(10, this).start();
     }
 
     @Override
