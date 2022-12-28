@@ -25,7 +25,7 @@ public class Simulation {
         BoardPanel panel = new BoardPanel(field, simulationParameters.getWidth(), simulationParameters.getHeight());
         frame.setContentPane(panel);
         frame.setResizable(true);
-        frame.setVisible(true);
+        frame.setVisible(false);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         long beforeUsedMem=Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory();
         long startTime = System.nanoTime();
@@ -38,7 +38,7 @@ public class Simulation {
         System.out.println("Memory used1: " + actualMemUsed);
         System.out.println("Mem 2: "  + new SystemMemory().getCurrentStats());
         //close the frame after 3 seconds
-        new Timer(3000, e -> frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING))).start();
+        new Timer(100, e -> frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING))).start();
 
     }
 

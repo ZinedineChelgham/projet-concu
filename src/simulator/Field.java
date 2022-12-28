@@ -28,29 +28,27 @@ public class Field {
     }
 
 
-    public synchronized void placePerson(Person p, PositionVector desiredPos) throws InterruptedException {
+    public synchronized void placePerson(Person p, PositionVector desiredPos) {
         if (!isPlaceFree(desiredPos.x, desiredPos.y)) {
             Person p2 = Objects.requireNonNull(getPersonAt(desiredPos));
             if (p.id > p2.id) {
                 resetPosition(p2);
                 updatePersonPosition(p, desiredPos);
-            }else while(!isPlaceFree(desiredPos.x, desiredPos.y)) wait();
-
+            }
         }else updatePersonPosition(p, desiredPos);
         checkTheArrived();
     }
 
-    private  void resetPosition(Person p) {
+    private void resetPosition(Person p) {
         sharedField[p.curPos.y][p.curPos.x] = null;
         p.curPos = p.startPos.cloneVector();
         sharedField[p.curPos.y][p.curPos.x] = p;
     }
 
-    private  void updatePersonPosition(Person p, PositionVector desiredPos) {
+    private void updatePersonPosition(Person p, PositionVector desiredPos) {
         sharedField[p.curPos.y][p.curPos.x] = null;
         sharedField[desiredPos.y][desiredPos.x] = p;
         p.curPos = desiredPos.cloneVector();
-        notifyAll();
     }
 
 
@@ -73,10 +71,8 @@ public class Field {
         for (Person p : persons) if (p.isArrived()) removeFromField(p);
     }
 
-    private synchronized void removeFromField(Person p) {
+    private  void removeFromField(Person p) {
         sharedField[p.curPos.y][p.curPos.x] = null;
-        notifyAll();
-
     }
 
     public void drawPersons(Graphics g) {
