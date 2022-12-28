@@ -52,6 +52,10 @@ public class SimulationParser {
     }
 
     public SimulationParameters generatePersons(int nbPersons, int width, int height) {
+        if(!(width == height && (width*width) % 4 == 0)){
+            throw new IllegalArgumentException("The width and height must be equal and a multiple of 4 " +
+                    "to share the grid into 4 equal quadrants.");
+        }
         givenColors.add(Color.BLACK); // we exclude black so that the drawn id is always visible
         givenColors.add(Color.WHITE);
         ArrayList personsList = new ArrayList();

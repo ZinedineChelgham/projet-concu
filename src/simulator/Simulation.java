@@ -24,29 +24,26 @@ public class Simulation {
     }
 
     public void start() throws InterruptedException {
-        JFrame frame = new JFrame("Simulation Demo");
+        JFrame frame = new JFrame("Simulation Demo V3");
         frame.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
         long beforeUsedMem=Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory();
         initThreads();
         BoardPanel panel = new BoardPanel(simulationParameters.persons(), simulationParameters.width(), simulationParameters.height());
-        frame.setContentPane(panel);frame.setResizable(true);frame.setVisible(true);
+        frame.setContentPane(panel);frame.setResizable(true);frame.setVisible(false);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         long startTime = System.nanoTime();
         Arrays.stream(threads).forEach(Thread::start);
+        for (GridThread thread : threads) thread.join();
 
-        while(!simulationParameters.persons().stream().allMatch(Person::isArrived)) {}
-        Arrays.stream(threads).forEach(Thread::stop);
-
+        long endTime = System.nanoTime();
+        long duration = (endTime - startTime)/1000000;
+        System.out.println("Execution time: " + duration + " ms");
         long afterUsedMem=Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory();
         long actualMemUsed=afterUsedMem-beforeUsedMem;
         System.out.println("Memory used1: " + actualMemUsed);
         System.out.println("Mem 2: "  + new SystemMemory().getCurrentStats());
-        long endTime = System.nanoTime();
-        long duration = (endTime - startTime)/1000000;
-        System.out.println("Execution time: " + duration + " ms");
-
         //close the frame after 3 seconds
-        new Timer(3000, e -> frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING))).start();
+        new Timer(100, e -> frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING))).start();
     }
 
     private void initThreads(){
@@ -56,10 +53,10 @@ public class Simulation {
         IntStream.range(0, NUM_THREADS).forEach(i -> queues[i] = new LinkedBlockingQueue<>());
 
         int halfGridSize = simulationParameters.width()/2;
-        threads[0] = new GridThread(0,0,0,halfGridSize, queues);
-        threads[1] = new GridThread(1,halfGridSize,0,halfGridSize, queues);
-        threads[2] = new GridThread(2,0,halfGridSize,halfGridSize, queues);
-        threads[3] = new GridThread(3,halfGridSize,halfGridSize,halfGridSize, queues);
+        threads[0] = new GridThread(0,0,0,halfGridSize, queues, simulationParameters.persons());
+        threads[1] = new GridThread(1,halfGridSize,0,halfGridSize, queues,simulationParameters.persons());
+        threads[2] = new GridThread(2,0,halfGridSize,halfGridSize, queues,simulationParameters.persons());
+        threads[3] = new GridThread(3,halfGridSize,halfGridSize,halfGridSize, queues,simulationParameters.persons());
         populateThreads();
     }
 

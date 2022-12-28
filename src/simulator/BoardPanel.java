@@ -22,7 +22,7 @@ public class BoardPanel extends JPanel implements ActionListener {
         this.GRID_WIDTH = gridWidth;
         this.GRID_HEIGHT = gridHeight;
         cellsize = Math.max(Simulation.WINDOW_WIDTH /gridWidth, Simulation.WINDOW_HEIGHT /gridHeight)-15;
-        new Timer(1200, this).start(); //TODO: remove
+       // new Timer(10, this).start();
     }
 
 
