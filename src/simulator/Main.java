@@ -1,10 +1,13 @@
 package simulator;
 
+import java.util.concurrent.Semaphore;
+
 public class Main {
 
-    public static void main(String... args) {
-        SimulationParameters sp = new SimulationParser().parse("initialisation_file.txt");
+    public static void main(String... args) throws InterruptedException {
+        SimulationParameters sp = new SimulationParser().generatePersons(36, 6, 6);
         new Simulation(sp).start();
-
     }
+
+
 }
