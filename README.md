@@ -2,6 +2,9 @@
 This project aim to model the movement of a crowd in a simplified manner using parallel execution flows. 
 Since this project is part of the concurrent programming module, we primarily focused our efforts on identifying synchronization constraints and how to resolve them.
 
+![image](https://github.com/ZinedineChelgham/projet-concu/assets/70756158/213e82b3-5677-4fd8-8817-7ac553f799f5)
+
+
 ## Summary of Release 1:
 Step one of the project (iterative version) served as the foundation for the subsequent steps. Firstly, it served as a point of comparison with the following steps that required the use of threads. More importantly, it prepared us to handle the main deadlock situation we might encounter, which is the inability to share a grid cell among people. If this situation arises, the older person takes the place, and the younger one restarts from their initial position.
 
